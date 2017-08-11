@@ -148,3 +148,15 @@ static class Android extends Platform {
   });
 }
 ```
+
+## RxJava
+
+> a library for composing asynchronous and event-based programs using observable sequences for the Java VM
+
+一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。
+通常我们涉及到异步的操作会用 AsyncTask、Thread + Handler、IntentService 等等的方式，然后通过回调、或者发广播的形式接收返回值。
+但是当我们有嵌套的异步任务调用时，就会产生 **回调地狱(迷之缩进)**，导致代码非常难以阅读。
+通过 RxJava 可以将这一连串的操作通过一条链展示，提高代码的可读性。
+
+基于观察者模式，最核心的几个要素 **Observable Observer subscribe**。目前仍然觉得 RxJava 难以入门，很多概念都需要花时间去理解。
+觉得有什么弄不懂的，再去[给 Android 开发者的 RxJava 详解](http://gank.io/post/560e15be2dca930e00da1083)找找答案吧。

@@ -33,4 +33,7 @@ dependencies {
 
     compile 'com.jakewharton:butterknife:8.8.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.0'
+
+    compile 'io.reactivex:rxjava:1.0.14'
+    compile 'io.reactivex:rxandroid:1.0.1'
 }

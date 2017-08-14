@@ -2,7 +2,7 @@ package com.study.lijia.gank.net;
 
 import com.study.lijia.gank.data.DataModel;
 
-import retrofit2.Call;
+import io.reactivex.Observable;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
@@ -19,5 +19,5 @@ import retrofit2.http.Path;
 public interface GankService {
 
     @GET("day/{year}/{month}/{day}")
-    Call<DataModel> getDailyData(@Path("year") String year, @Path("month") String month, @Path("day") String day);
+    Observable<DataModel> getDailyData(@Path("year") int year, @Path("month") int month, @Path("day") int day);
 }

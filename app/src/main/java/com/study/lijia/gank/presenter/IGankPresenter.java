@@ -5,7 +5,5 @@ package com.study.lijia.gank.presenter;
  */
 
 public interface IGankPresenter {
-    void getDaily(String year, String month, String day);
-
-    void getTypeData(String type);
+    void getDaily();
 }

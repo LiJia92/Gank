@@ -160,3 +160,49 @@ static class Android extends Platform {
 
 基于观察者模式，最核心的几个要素 **Observable Observer subscribe**。目前仍然觉得 RxJava 难以入门，很多概念都需要花时间去理解。
 觉得有什么弄不懂的，再去[给 Android 开发者的 RxJava 详解](http://gank.io/post/560e15be2dca930e00da1083)找找答案吧。
+
+## Retrofit打印网络日志
+在网络请求的时候想要打印请求的url或其他参数，需要通过拦截来实现:
+```
+OkHttpClient.Builder okHttpClient = new OkHttpClient.Builder();
+okHttpClient.addInterceptor(new Interceptor() {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        //获得请求信息，此处如有需要可以添加headers信息
+        Request request = chain.request();
+        //打印请求信息
+        Logger.e("url:" + request.url());
+
+        //记录请求耗时
+        long startNs = System.nanoTime();
+        okhttp3.Response response;
+        try {
+            //发送请求，获得相应，
+            response = chain.proceed(request);
+        } catch (Exception e) {
+            throw e;
+        }
+        long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
+        //打印请求耗时
+        Logger.e("耗时:" + tookMs + "ms");
+        //使用response获得headers(),可以更新本地Cookie。
+        Headers headers = response.headers();
+        Logger.e(headers.toString());
+
+        //获得返回的body，注意此处不要使用responseBody.string()获取返回数据，原因在于这个方法会消耗返回结果的数据(buffer)
+        ResponseBody responseBody = response.body();
+
+        //为了不消耗buffer，我们这里使用source先获得buffer对象，然后clone()后使用
+        BufferedSource source = responseBody.source();
+        source.request(Long.MAX_VALUE); // Buffer the entire body.
+        return response;
+    }
+});
+
+Retrofit retrofit = new Retrofit.Builder()
+        .baseUrl("http://gank.io/api/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .client(okHttpClient.build())
+        .build();
+```

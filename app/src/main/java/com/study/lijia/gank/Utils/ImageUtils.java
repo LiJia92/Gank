@@ -8,12 +8,29 @@ import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 
 /**
+ * 图片工具类
  * Created by lijia on 17-8-11.
  */
 
 public class ImageUtils {
+
+    /**
+     * 统一图片加载入口，方便后续更换图片加载框架（若有需要）
+     */
+    public static void loadImage(Context context, String url, ImageView imageView) {
+        // 使用这种方式需要继承AppGlideModule
+//        GlideApp.with(context)
+//                .load(url)
+//                .fitCenter()
+//                .into(imageView);
+
+        Glide.with(context).load(url).into(imageView);
+    }
 
     /**
      * 高斯模糊

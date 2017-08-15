@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
+ * 数据结构类
  * Created by lijia on 17-8-9.
  */
 
@@ -13,28 +14,28 @@ public class DataModel implements Serializable {
 
     public String error;
     public DataResults results;
-
+    public List<String> category;
 
     public class DataResults {
         @SerializedName("Android")
-        List<ItemData> androidList;
+        public List<ItemData> androidList;
 
         @SerializedName("iOS")
-        List<ItemData> iOSList;
+        public List<ItemData> iOSList;
 
         @SerializedName("休息视频")
-        List<ItemData> restList;
+        public List<ItemData> restList;
 
         @SerializedName("前端")
-        List<ItemData> jsList;
+        public List<ItemData> jsList;
 
         @SerializedName("福利")
-        List<ItemData> welfareList;
+        public List<ItemData> welfareList;
     }
 
-
     public class ItemData {
-        public String _id;
+        @SerializedName("_id")
+        public String id;
         public String createdAt;
         public String desc;
         public String[] images;

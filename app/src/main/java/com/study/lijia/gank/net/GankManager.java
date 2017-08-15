@@ -1,47 +1,50 @@
 package com.study.lijia.gank.net;
 
+import android.support.annotation.NonNull;
+
 import com.orhanobut.logger.Logger;
+import com.study.lijia.gank.data.DataModel;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Headers;
+import io.reactivex.Observable;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okio.BufferedSource;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
+ * Gank请求管理类
  * Created by lijia on 17-8-9.
  */
 
-public class GankTask {
+public class GankManager {
 
-    private static GankTask mInstance;
+    private static final String BASE_GANK_URL = "http://gank.io/api/";
+
+    private static GankManager mInstance;
     private GankService mService;
 
-    public static GankTask getInstance() {
+    public static GankManager getInstance() {
         if (mInstance == null) {
-            mInstance = new GankTask();
+            mInstance = new GankManager();
         }
         return mInstance;
     }
 
-    private GankTask() {
+    private GankManager() {
+        // HttpClient添加拦截打印url
         OkHttpClient.Builder okHttpClient = new OkHttpClient.Builder();
         okHttpClient.addInterceptor(new Interceptor() {
             @Override
-            public Response intercept(Chain chain) throws IOException {
-                //获得请求信息，此处如有需要可以添加headers信息
+            public Response intercept(@NonNull Chain chain) throws IOException {
                 Request request = chain.request();
-                //打印请求信息
+                //打印url
                 Logger.e("url:" + request.url());
-
                 //记录请求耗时
                 long startNs = System.nanoTime();
                 okhttp3.Response response;
@@ -54,21 +57,12 @@ public class GankTask {
                 long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
                 //打印请求耗时
                 Logger.e("耗时:" + tookMs + "ms");
-                //使用response获得headers(),可以更新本地Cookie。
-                Headers headers = response.headers();
-                Logger.e(headers.toString());
-
-                //获得返回的body，注意此处不要使用responseBody.string()获取返回数据，原因在于这个方法会消耗返回结果的数据(buffer)
-                ResponseBody responseBody = response.body();
-
-                //为了不消耗buffer，我们这里使用source先获得buffer对象，然后clone()后使用
-                BufferedSource source = responseBody.source();
-                source.request(Long.MAX_VALUE); // Buffer the entire body.
                 return response;
             }
         });
+        // 初始化Retrofit，动态代理生成实现类
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://gank.io/api/")
+                .baseUrl(BASE_GANK_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(okHttpClient.build())
@@ -77,7 +71,10 @@ public class GankTask {
         mService = retrofit.create(GankService.class);
     }
 
-    public GankService getGankService() {
-        return mService;
+    /**
+     * 获取某天的数据
+     */
+    public Observable<DataModel> getDaily(int year, int month, int day) {
+        return mService.getDailyData(year, month, day);
     }
 }

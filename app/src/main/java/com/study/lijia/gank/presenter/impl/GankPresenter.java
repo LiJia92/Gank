@@ -3,7 +3,7 @@ package com.study.lijia.gank.presenter.impl;
 import com.orhanobut.logger.Logger;
 import com.study.lijia.gank.Utils.DateUtils;
 import com.study.lijia.gank.data.DataModel;
-import com.study.lijia.gank.net.GankTask;
+import com.study.lijia.gank.net.GankManager;
 import com.study.lijia.gank.presenter.AbsPresenter;
 import com.study.lijia.gank.presenter.IGankPresenter;
 import com.study.lijia.gank.view.IGankView;
@@ -17,17 +17,19 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
+ * Gank接口实现类
  * Created by lijia on 17-8-9.
  */
 
 public class GankPresenter extends AbsPresenter implements IGankPresenter {
 
-    private final static int PAGE_SIZE = 10;
+    private final static int PAGE_SIZE = 30;    // 默认一次请求30天的数据
 
     private IGankView mView;
 
@@ -54,10 +56,10 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                         return easyDate.getPastTime();
                     }
                 })
-                .flatMap(new Function<EasyDate, ObservableSource<DataModel>>() {
+                .concatMap(new Function<EasyDate, ObservableSource<DataModel>>() {
                     @Override
                     public ObservableSource<DataModel> apply(@NonNull EasyDate easyDate) throws Exception {
-                        return GankTask.getInstance().getGankService().getDailyData(easyDate.getYear(), easyDate.getMonth(), easyDate.getDay());
+                        return GankManager.getInstance().getDaily(easyDate.getYear(), easyDate.getMonth(), easyDate.getDay());
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -65,8 +67,22 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                 .subscribe(new Consumer<DataModel>() {
                     @Override
                     public void accept(DataModel dataModel) throws Exception {
-                        mDataList.add(dataModel);
+                        if (dataModel.results.androidList != null && dataModel.results.androidList.size() != 0) {
+                            mDataList.add(dataModel);
+                        }
                         Logger.e("请求完成了");
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        if (mView != null) {
+                            mView.showDaily(mDataList);
+                        }
                     }
                 });
     }
@@ -93,13 +109,9 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
             return calendar.get(Calendar.DAY_OF_MONTH);
         }
 
-        public List<EasyDate> getPastTime() {
+        List<EasyDate> getPastTime() {
             List<EasyDate> easyDates = new ArrayList<>();
             for (int i = 0; i < PAGE_SIZE; i++) {
-                /*
-                 * - (page * DateUtils.ONE_DAY) 翻到哪页再找 一页有DEFAULT_DAILY_SIZE这么长
-                 * - i * DateUtils.ONE_DAY 往前一天一天 找呀找
-                 */
                 long time = this.calendar.getTimeInMillis() - ((mPage - 1) * PAGE_SIZE * DateUtils.ONE_DAY) - i * DateUtils.ONE_DAY;
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(time);

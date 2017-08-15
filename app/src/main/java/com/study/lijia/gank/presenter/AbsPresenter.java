@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.study.lijia.gank.view.IView;
 
 /**
+ * Presenter基类
  * Created by lijia on 17-8-9.
  */
 

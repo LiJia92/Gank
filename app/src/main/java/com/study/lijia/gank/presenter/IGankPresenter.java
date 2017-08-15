@@ -6,5 +6,8 @@ package com.study.lijia.gank.presenter;
  */
 
 public interface IGankPresenter {
-    void getDaily();
+
+    void refreshDaily();
+
+    void loadMoreDaily();
 }

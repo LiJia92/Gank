@@ -29,7 +29,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class GankPresenter extends AbsPresenter implements IGankPresenter {
 
-    private final static int PAGE_SIZE = 30;    // 默认一次请求30天的数据
+    private final static int PAGE_SIZE = 20;    // 默认一次请求30天的数据
 
     private IGankView mView;
 
@@ -48,7 +48,16 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
     }
 
     @Override
-    public void getDaily() {
+    public void refreshDaily() {
+        mPage = 1;
+        mDataList.clear();
+        loadMoreDaily();
+        Logger.e("refreshDaily");
+    }
+
+    @Override
+    public void loadMoreDaily() {
+        Logger.e("loadMoreDaily");
         Observable.just(mCurrentDate)
                 .flatMapIterable(new Function<EasyDate, Iterable<EasyDate>>() {
                     @Override
@@ -70,7 +79,6 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                         if (dataModel.results.androidList != null && dataModel.results.androidList.size() != 0) {
                             mDataList.add(dataModel);
                         }
-                        Logger.e("请求完成了");
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -80,8 +88,12 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                 }, new Action() {
                     @Override
                     public void run() throws Exception {
+                        mPage++;
                         if (mView != null) {
-                            mView.showDaily(mDataList);
+                            List<DataModel> dataModels = new ArrayList<>();
+                            dataModels.addAll(mDataList);
+                            mDataList.clear();
+                            mView.showDaily(dataModels);
                         }
                     }
                 });

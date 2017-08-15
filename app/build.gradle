@@ -45,7 +45,7 @@ dependencies {
     // logger
     compile 'com.orhanobut:logger:2.1.1'
 
-    // BRAVH
+    // BRVAH
     compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.22'
 
     // glide

@@ -155,7 +155,7 @@ static class Android extends Platform {
 
 一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。
 通常我们涉及到异步的操作会用 AsyncTask、Thread + Handler、IntentService 等等的方式，然后通过回调、或者发广播的形式接收返回值。
-但是当我们有嵌套的异步任务调用时，就会产生 **回调地狱(迷之缩进)**，导致代码非常难以阅读。
+但是当我们有嵌套的异步任务调用时，就会产生 ``回调地狱(迷之缩进)``，导致代码非常难以阅读。
 通过 RxJava 可以将这一连串的操作通过一条链展示，提高代码的可读性。
 
 基于观察者模式，最核心的几个要素 **Observable Observer subscribe**。目前仍然觉得 RxJava 难以入门，很多概念都需要花时间去理解。
@@ -219,6 +219,27 @@ android:background="?attr/selectableItemBackground"
 
 </ripple>
 ```
-然后设置给布局的 background，**布局必须可点击**。同时为了兼容，最好建立``drawable-v21``来区分开来。建立低版本的 drawable 去对应 5.0 以下的版本。当然，目前也有很多库可以实现 5.0 以下的水波纹效果，可以参考[RippleEffect](https://github.com/traex/RippleEffect)。
+然后设置给布局的 background， **布局必须可点击**。同时为了兼容，最好建立``drawable-v21``来区分开来。建立低版本的 drawable 去对应 5.0 以下的版本。当然，目前也有很多库可以实现 5.0 以下的水波纹效果，可以参考[RippleEffect](https://github.com/traex/RippleEffect)。
 
 > [android5.0 水波纹点击效果](http://www.jianshu.com/p/7d2a8a5836e0)
+
+## Intent传递复杂数据
+我们知道可以通过 Intent 在多个 Activity、Fragment 之间进行数据传递。基本数据类型不用说，当传递自定义数据类型时，需要实现 Serializable 或 Parcelable 接口。前者通过 Intent 的 getSerializableExtra() 获取数据，后者通过 getParcelableExtra()、getParcelableArrayExtra()、getParcelableArrayListExtra() 获取数据。但是当我们传递的数据是 ArrayList<List<Object>> 这种呢？
+    
+当我们是通过 Parcelable 接口进行传递时，会碰到如下的错误：
+```
+Error:(46, 88) 错误: 不兼容的类型: ArrayList<Parcelable>无法转换为ArrayList<List<MyObject>>
+```
+即类型无法强转。
+
+当我们通过 Serializable 接口进行传递时，没有错误，只会有警告：
+```
+Unchecked cast: 'java.io.Serializable' to 'java.util.ArrayList<java.util.List<com.study.lijia.gank.data.MyObject>>'
+```
+这警告只需添加``@SuppressWarnings("unchecked")``即可消除。
+看到 ArrayList 的定义:
+```
+public class ArrayList<E> extends AbstractList<E>
+        implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+```
+实现了 Serializable，自然是能转换的，但是没有实现 Parcelable，所以无法使用 Parcelable 传递 ArrayList<List<MyObject>> 类数据。碰到这种需求则只能通过 Serializable 接口来了，或者更换数据传递的方式。

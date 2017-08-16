@@ -10,7 +10,7 @@ import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
+import com.study.lijia.gank.GlideApp;
 
 /**
  * 图片工具类
@@ -24,12 +24,12 @@ public class ImageUtils {
      */
     public static void loadImage(Context context, String url, ImageView imageView) {
         // 使用这种方式需要继承AppGlideModule
-//        GlideApp.with(context)
-//                .load(url)
-//                .fitCenter()
-//                .into(imageView);
+        GlideApp.with(context)
+                .load(url)
+                .fitCenter()
+                .into(imageView);
 
-        Glide.with(context).load(url).into(imageView);
+//        Glide.with(context).load(url).into(imageView);
     }
 
     /**

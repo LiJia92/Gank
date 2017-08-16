@@ -3,7 +3,7 @@ package com.study.lijia.gank.net;
 import android.support.annotation.NonNull;
 
 import com.orhanobut.logger.Logger;
-import com.study.lijia.gank.data.DataModel;
+import com.study.lijia.gank.data.GankResult;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +74,7 @@ public class GankManager {
     /**
      * 获取某天的数据
      */
-    public Observable<DataModel> getDaily(int year, int month, int day) {
+    public Observable<GankResult> getDaily(int year, int month, int day) {
         return mService.getDailyData(year, month, day);
     }
 }

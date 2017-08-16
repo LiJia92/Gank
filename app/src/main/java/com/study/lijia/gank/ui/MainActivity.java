@@ -9,12 +9,14 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.animation.SlideInRightAnimation;
 import com.study.lijia.gank.R;
 import com.study.lijia.gank.Utils.ToastUtils;
-import com.study.lijia.gank.data.DataModel;
+import com.study.lijia.gank.data.GankBaseData;
+import com.study.lijia.gank.data.GankResult;
 import com.study.lijia.gank.presenter.IGankPresenter;
 import com.study.lijia.gank.presenter.impl.GankPresenter;
 import com.study.lijia.gank.ui.adapter.MainAdapter;
 import com.study.lijia.gank.view.IGankView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -26,7 +28,7 @@ public class MainActivity extends BaseActivity implements IGankView {
     private MainAdapter mAdapter;
 
     @BindView(R.id.gank_rv)
-    RecyclerView mRv;
+    RecyclerView mRecyclerView;
 
     @BindView(R.id.refresh_view)
     SwipeRefreshLayout mRefreshLayout;
@@ -47,11 +49,11 @@ public class MainActivity extends BaseActivity implements IGankView {
         mRefreshLayout.setColorSchemeColors(mContext.getResources().getColor(R.color.colorAccent));
         mRefreshLayout.setRefreshing(true);
 
-        mRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mAdapter = new MainAdapter(null);
         mAdapter.openLoadAnimation(new SlideInRightAnimation());
         mAdapter.setPreLoadNumber(3);
-        mRv.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -62,12 +64,12 @@ public class MainActivity extends BaseActivity implements IGankView {
                 mGankPresenter.loadMoreDaily();
                 mRefreshLayout.setEnabled(false);
             }
-        }, mRv);
+        }, mRecyclerView);
 
         mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-
+                mGankPresenter.getDailyDetail((GankResult) adapter.getItem(position));
             }
         });
 
@@ -91,15 +93,20 @@ public class MainActivity extends BaseActivity implements IGankView {
     }
 
     @Override
-    public void showDaily(List<DataModel> dataModels) {
+    public void showDaily(List<GankResult> gankResults) {
         if (mRefreshLayout.isRefreshing()) {
-            mAdapter.setNewData(dataModels);
+            mAdapter.setNewData(gankResults);
             mRefreshLayout.setRefreshing(false);
             mAdapter.setEnableLoadMore(true);
         } else {
             mAdapter.loadMoreComplete();
-            mAdapter.addData(dataModels);
+            mAdapter.addData(gankResults);
             mRefreshLayout.setEnabled(true);
         }
+    }
+
+    @Override
+    public void showDailyData(ArrayList<List<GankBaseData>> dailyData) {
+        GankDetailActivity.navigateTo(mContext, dailyData);
     }
 }

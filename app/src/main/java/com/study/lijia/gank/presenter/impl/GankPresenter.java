@@ -2,7 +2,9 @@ package com.study.lijia.gank.presenter.impl;
 
 import com.orhanobut.logger.Logger;
 import com.study.lijia.gank.Utils.DateUtils;
-import com.study.lijia.gank.data.DataModel;
+import com.study.lijia.gank.data.GankBaseData;
+import com.study.lijia.gank.data.GankCategoryData;
+import com.study.lijia.gank.data.GankResult;
 import com.study.lijia.gank.net.GankManager;
 import com.study.lijia.gank.presenter.AbsPresenter;
 import com.study.lijia.gank.presenter.IGankPresenter;
@@ -33,7 +35,7 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
 
     private IGankView mView;
 
-    private List<DataModel> mDataList = new ArrayList<>();
+    private List<GankResult> mDataList = new ArrayList<>();
     private EasyDate mCurrentDate;
     private int mPage = 1;
 
@@ -65,19 +67,19 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                         return easyDate.getPastTime();
                     }
                 })
-                .concatMap(new Function<EasyDate, ObservableSource<DataModel>>() {
+                .concatMap(new Function<EasyDate, ObservableSource<GankResult>>() {
                     @Override
-                    public ObservableSource<DataModel> apply(@NonNull EasyDate easyDate) throws Exception {
+                    public ObservableSource<GankResult> apply(@NonNull EasyDate easyDate) throws Exception {
                         return GankManager.getInstance().getDaily(easyDate.getYear(), easyDate.getMonth(), easyDate.getDay());
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<DataModel>() {
+                .subscribe(new Consumer<GankResult>() {
                     @Override
-                    public void accept(DataModel dataModel) throws Exception {
-                        if (dataModel.results.androidList != null && dataModel.results.androidList.size() != 0) {
-                            mDataList.add(dataModel);
+                    public void accept(GankResult gankResult) throws Exception {
+                        if (gankResult.results.androidList != null && gankResult.results.androidList.size() != 0) {
+                            mDataList.add(gankResult);
                         }
                     }
                 }, new Consumer<Throwable>() {
@@ -90,10 +92,57 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                     public void run() throws Exception {
                         mPage++;
                         if (mView != null) {
-                            List<DataModel> dataModels = new ArrayList<>();
-                            dataModels.addAll(mDataList);
+                            List<GankResult> gankResults = new ArrayList<>();
+                            gankResults.addAll(mDataList);
                             mDataList.clear();
-                            mView.showDaily(dataModels);
+                            mView.showDaily(gankResults);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void getDailyDetail(GankResult result) {
+        Observable.just(result.results)
+                .map(new Function<GankCategoryData, ArrayList<List<GankBaseData>>>() {
+
+                    @Override
+                    public ArrayList<List<GankBaseData>> apply(@NonNull GankCategoryData gankCategoryData) throws Exception {
+                        ArrayList<List<GankBaseData>> cardData = new ArrayList<>();
+                        if (gankCategoryData.welfareList != null && gankCategoryData.welfareList.size() > 0) {
+                            cardData.add(gankCategoryData.welfareList);
+                        }
+                        if (gankCategoryData.androidList != null && gankCategoryData.androidList.size() > 0) {
+                            cardData.add(gankCategoryData.androidList);
+                        }
+                        if (gankCategoryData.iOSList != null && gankCategoryData.iOSList.size() > 0) {
+                            cardData.add(gankCategoryData.iOSList);
+                        }
+                        if (gankCategoryData.jsList != null && gankCategoryData.jsList.size() > 0) {
+                            cardData.add(gankCategoryData.jsList);
+                        }
+                        if (gankCategoryData.restList != null && gankCategoryData.restList.size() > 0) {
+                            cardData.add(gankCategoryData.restList);
+                        }
+                        if (gankCategoryData.resourcesList != null && gankCategoryData.resourcesList.size() > 0) {
+                            cardData.add(gankCategoryData.resourcesList);
+                        }
+                        if (gankCategoryData.appList != null && gankCategoryData.appList.size() > 0) {
+                            cardData.add(gankCategoryData.appList);
+                        }
+                        if (gankCategoryData.recommendList != null && gankCategoryData.recommendList.size() > 0) {
+                            cardData.add(gankCategoryData.recommendList);
+                        }
+                        return cardData;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ArrayList<List<GankBaseData>>>() {
+                    @Override
+                    public void accept(ArrayList<List<GankBaseData>> lists) throws Exception {
+                        if (mView != null) {
+                            mView.showDailyData(lists);
                         }
                     }
                 });

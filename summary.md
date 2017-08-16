@@ -206,3 +206,14 @@ Retrofit retrofit = new Retrofit.Builder()
         .client(okHttpClient.build())
         .build();
 ```
+## 水波纹效果
+
+Android 5.0 及以上才有水波纹效果。简单实现:
+```
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:colorControlHighlight">
+
+</ripple>
+```
+然后设置给布局的 background，布局必须可点击。同时为了兼容，最好建立``drawable-v21``来区分开来。建立低版本的 drawable 去对应 5.0 以下的版本。当然，目前也有很多想法可以实现 5.0 以下的水波纹效果，可以参考。
+![android5.0 水波纹点击效果](http://www.jianshu.com/p/7d2a8a5836e0)

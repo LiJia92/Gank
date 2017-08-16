@@ -1,18 +1,14 @@
 package com.study.lijia.gank.ui;
 
-import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.animation.SlideInRightAnimation;
-import com.orhanobut.logger.AndroidLogAdapter;
-import com.orhanobut.logger.Logger;
 import com.study.lijia.gank.R;
+import com.study.lijia.gank.Utils.ToastUtils;
 import com.study.lijia.gank.data.DataModel;
 import com.study.lijia.gank.presenter.IGankPresenter;
 import com.study.lijia.gank.presenter.impl.GankPresenter;
@@ -22,9 +18,8 @@ import com.study.lijia.gank.view.IGankView;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements IGankView {
+public class MainActivity extends BaseActivity implements IGankView {
 
     private IGankPresenter mGankPresenter;
 
@@ -37,22 +32,30 @@ public class MainActivity extends AppCompatActivity implements IGankView {
     SwipeRefreshLayout mRefreshLayout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected int getLayoutResId() {
+        return R.layout.activity_main;
+    }
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-
-        Logger.addLogAdapter(new AndroidLogAdapter());
-
-        mRefreshLayout.setRefreshing(true);
+    @Override
+    protected void initData() {
         mGankPresenter = new GankPresenter(this);
         mGankPresenter.loadMoreDaily();
+    }
+
+    @Override
+    protected void initWidgets() {
+        mRefreshLayout.setColorSchemeColors(mContext.getResources().getColor(R.color.colorAccent));
+        mRefreshLayout.setRefreshing(true);
 
         mRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-
         mAdapter = new MainAdapter(null);
         mAdapter.openLoadAnimation(new SlideInRightAnimation());
+        mAdapter.setPreLoadNumber(3);
+        mRv.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void setListener() {
         mAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
@@ -60,14 +63,13 @@ public class MainActivity extends AppCompatActivity implements IGankView {
                 mRefreshLayout.setEnabled(false);
             }
         }, mRv);
-        mAdapter.setPreLoadNumber(3);
+
         mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                Toast.makeText(MainActivity.this, "点击", Toast.LENGTH_SHORT).show();
+
             }
         });
-        mRv.setAdapter(mAdapter);
 
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -85,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements IGankView {
 
     @Override
     public void onError(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        ToastUtils.showShort(mContext, msg);
     }
 
     @Override

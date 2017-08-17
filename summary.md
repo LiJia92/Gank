@@ -243,3 +243,25 @@ public class ArrayList<E> extends AbstractList<E>
         implements List<E>, RandomAccess, Cloneable, java.io.Serializable
 ```
 实现了 Serializable，自然是能转换的，但是没有实现 Parcelable，所以无法使用 Parcelable 传递 ArrayList<List<MyObject>> 类数据。碰到这种需求则只能通过 Serializable 接口来了，或者更换数据传递的方式。
+
+## 获取资源
+经常我们会通过``mContext.getResources().getColor(R.color.black);``来获取我们定义在 color.xml 中的颜色，但是 getColor(@ColorRes int id) 已经被标记为``@Deprecated``，导致代码里看起来就是一条横线，很不舒服。当然我们可以通过 getColor(@ColorRes int id, @Nullable Theme theme) 来替换它，但是又会有这个问题：
+```
+Call requires API level 23 (current min is 15): android.content.res.Resources#getColor
+```
+代码强迫症肯定依然受不了。此时我们可以通过 ContextCompat 来获取
+```
+ContextCompat.getColor(mContext, R.color.black);
+```
+它的实现：
+```
+public static final int getColor(Context context, @ColorRes int id) {
+    final int version = Build.VERSION.SDK_INT;
+    if (version >= 23) {
+        return ContextCompatApi23.getColor(context, id);
+    } else {
+        return context.getResources().getColor(id);
+    }
+}
+```
+一目了然了。

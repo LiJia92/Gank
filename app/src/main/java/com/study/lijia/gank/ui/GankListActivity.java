@@ -13,7 +13,7 @@ import com.study.lijia.gank.data.GankBaseData;
 import com.study.lijia.gank.data.GankResult;
 import com.study.lijia.gank.presenter.IGankPresenter;
 import com.study.lijia.gank.presenter.impl.GankPresenter;
-import com.study.lijia.gank.ui.adapter.MainAdapter;
+import com.study.lijia.gank.ui.adapter.GankListAdapter;
 import com.study.lijia.gank.view.IGankView;
 
 import java.util.ArrayList;
@@ -21,11 +21,11 @@ import java.util.List;
 
 import butterknife.BindView;
 
-public class MainActivity extends BaseActivity implements IGankView {
+public class GankListActivity extends BaseActivity implements IGankView {
 
     private IGankPresenter mGankPresenter;
 
-    private MainAdapter mAdapter;
+    private GankListAdapter mAdapter;
 
     @BindView(R.id.gank_rv)
     RecyclerView mRecyclerView;
@@ -50,7 +50,7 @@ public class MainActivity extends BaseActivity implements IGankView {
         mRefreshLayout.setRefreshing(true);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mAdapter = new MainAdapter(null);
+        mAdapter = new GankListAdapter(null);
         mAdapter.openLoadAnimation(new SlideInRightAnimation());
         mAdapter.setPreLoadNumber(3);
         mRecyclerView.setAdapter(mAdapter);

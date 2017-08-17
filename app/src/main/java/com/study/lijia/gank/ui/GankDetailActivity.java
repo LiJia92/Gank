@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.study.lijia.gank.R;
 import com.study.lijia.gank.data.GankBaseData;
-import com.study.lijia.gank.ui.adapter.DetailAdapter;
+import com.study.lijia.gank.ui.adapter.GankDetailAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class GankDetailActivity extends BaseActivity {
     @BindView(R.id.detail_rv)
     RecyclerView mRecyclerView;
 
-    private DetailAdapter mAdapter;
+    private GankDetailAdapter mAdapter;
     private ArrayList<List<GankBaseData>> mData;
 
     public static void navigateTo(Context context, ArrayList<List<GankBaseData>> result) {
@@ -49,7 +49,7 @@ public class GankDetailActivity extends BaseActivity {
     @Override
     protected void initWidgets() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
-        mAdapter = new DetailAdapter(mData);
+        mAdapter = new GankDetailAdapter(mContext, mData);
         mRecyclerView.setAdapter(mAdapter);
     }
 

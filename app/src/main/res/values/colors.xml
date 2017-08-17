@@ -6,5 +6,18 @@
     <color name="itemSelectablePressed">#FFF3F3F3</color>
 
     <color name="white">#FFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="gray">#FF808080</color>
     <color name="black_50">#80000000</color>
+    <color name="divider">#FFCCCCCC</color>
+
+    <color name="category_welfare">#FFFFAEC9</color>
+    <color name="category_android">#FF388E3C</color>
+    <color name="category_iOS">#FF0377BC</color>
+    <color name="category_rest">#FF039588</color>
+    <color name="category_resources">#FF546E7A</color>
+    <color name="category_js">#FFEF6C02</color>
+    <color name="category_app">#FFC02E34</color>
+    <color name="category_recommend">#FF4527A0</color>
+
 </resources>

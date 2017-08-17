@@ -31,7 +31,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class GankPresenter extends AbsPresenter implements IGankPresenter {
 
-    private final static int PAGE_SIZE = 20;    // 默认一次请求30天的数据
+    private final static int PAGE_SIZE = 20;    // 默认一次请求20天的数据
 
     private IGankView mView;
 
@@ -176,8 +176,12 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                 long time = this.calendar.getTimeInMillis() - ((mPage - 1) * PAGE_SIZE * DateUtils.ONE_DAY) - i * DateUtils.ONE_DAY;
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(time);
-                EasyDate date = new EasyDate(c);
-                easyDates.add(date);
+
+                // 过滤掉周末，减少无效请求
+                if (c.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && c.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+                    EasyDate date = new EasyDate(c);
+                    easyDates.add(date);
+                }
             }
             return easyDates;
         }

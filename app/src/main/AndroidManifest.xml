@@ -19,8 +19,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".ui.GankDetailActivity" />
+        <activity android:name=".ui.GankWebActivity" />
     </application>
 
 </manifest>

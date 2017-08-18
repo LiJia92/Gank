@@ -20,6 +20,7 @@ import com.study.lijia.gank.R;
 import com.study.lijia.gank.Utils.DensityUtils;
 import com.study.lijia.gank.Utils.ImageUtils;
 import com.study.lijia.gank.data.GankBaseData;
+import com.study.lijia.gank.ui.GankWebActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.List;
  * Created by lijia on 17-8-16.
  */
 
-public class GankDetailAdapter extends BaseQuickAdapter<List<GankBaseData>, GankDetailAdapter.ViewHolder> {
+public class GankDetailAdapter extends BaseQuickAdapter<List<GankBaseData>, GankDetailAdapter.GankViewHolder> {
 
     private int mDividerColor;
     private int mPadding;
@@ -47,7 +48,7 @@ public class GankDetailAdapter extends BaseQuickAdapter<List<GankBaseData>, Gank
     }
 
     @Override
-    protected void convert(ViewHolder helper, List<GankBaseData> item) {
+    protected void convert(GankViewHolder helper, List<GankBaseData> item) {
         helper.rootLayout.removeAllViews();
         for (int i = 0; i < item.size(); i++) {
             GankBaseData data = item.get(i);
@@ -122,7 +123,7 @@ public class GankDetailAdapter extends BaseQuickAdapter<List<GankBaseData>, Gank
     /**
      * 添加数据TextView
      */
-    private void addData(LinearLayout rootLayout, GankBaseData data) {
+    private void addData(LinearLayout rootLayout, final GankBaseData data) {
         TextView dataText = (TextView) View.inflate(mContext, R.layout.item_gank_data, null);
         dataText.setPadding(mPadding, mPadding, mPadding, mPadding);
         String content = data.desc.trim() + "   " + String.format("via.%s", data.who);
@@ -136,7 +137,7 @@ public class GankDetailAdapter extends BaseQuickAdapter<List<GankBaseData>, Gank
         dataText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                GankWebActivity.navigateTo(mContext, data.desc, data.url);
             }
         });
     }
@@ -150,11 +151,11 @@ public class GankDetailAdapter extends BaseQuickAdapter<List<GankBaseData>, Gank
     }
 
 
-    class ViewHolder extends BaseViewHolder {
+    class GankViewHolder extends BaseViewHolder {
 
         LinearLayout rootLayout;
 
-        public ViewHolder(View view) {
+        public GankViewHolder(View view) {
             super(view);
             rootLayout = (LinearLayout) view.findViewById(R.id.daily_detail_ll);
         }

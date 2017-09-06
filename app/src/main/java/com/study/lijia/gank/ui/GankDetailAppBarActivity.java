@@ -19,18 +19,17 @@ import butterknife.BindView;
  * Created by lijia on 17-8-16.
  */
 
-public class GankDetailActivity extends BaseActivity {
+public class GankDetailAppBarActivity extends BaseAppBarActivity {
 
     private static final String EXTRA_DATA = "extraData";
 
     @BindView(R.id.detail_rv)
     RecyclerView mRecyclerView;
 
-    private GankDetailAdapter mAdapter;
     private ArrayList<List<GankBaseData>> mData;
 
     public static void navigateTo(Context context, ArrayList<List<GankBaseData>> result) {
-        Intent intent = new Intent(context, GankDetailActivity.class);
+        Intent intent = new Intent(context, GankDetailAppBarActivity.class);
         intent.putExtra(EXTRA_DATA, result);
         context.startActivity(intent);
     }
@@ -48,8 +47,9 @@ public class GankDetailActivity extends BaseActivity {
 
     @Override
     protected void initWidgets() {
+        super.initWidgets();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
-        mAdapter = new GankDetailAdapter(mContext, mData);
+        GankDetailAdapter mAdapter = new GankDetailAdapter(mContext, mData);
         mRecyclerView.setAdapter(mAdapter);
     }
 

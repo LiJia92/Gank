@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_daily"
+        android:checked="true"
+        android:icon="@drawable/ic_daily"
+        android:title="@string/daily" />
+    <item
+        android:id="@+id/navigation_welfare"
+        android:icon="@drawable/ic_welfare"
+        android:title="@string/welfare" />
+    <item
+        android:id="@+id/navigation_android"
+        android:icon="@drawable/ic_android"
+        android:title="@string/android" />
+    <item
+        android:id="@+id/navigation_ios"
+        android:icon="@drawable/ic_ios"
+        android:title="@string/ios" />
+    <item
+        android:id="@+id/navigation_js"
+        android:icon="@drawable/ic_js"
+        android:title="@string/js" />
+    <item
+        android:id="@+id/navigation_video"
+        android:icon="@drawable/ic_video"
+        android:title="@string/video" />
+    <item
+        android:id="@+id/navigation_resources"
+        android:icon="@drawable/ic_resources"
+        android:title="@string/resource" />
+    <item
+        android:id="@+id/navigation_app"
+        android:icon="@drawable/ic_app"
+        android:title="@string/app" />
+</menu>

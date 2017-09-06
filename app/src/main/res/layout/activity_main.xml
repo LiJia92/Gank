@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.study.lijia.gank.ui.GankListActivity">
+    tools:context="com.study.lijia.gank.ui.GankListAppBarActivity">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/refresh_view"
+    <include layout="@layout/content_main" />
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/navigation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_gravity="start" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/gank_rv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingTop="8dp" />
-
-    </android.support.v4.widget.SwipeRefreshLayout>
-
-</FrameLayout>
+</android.support.v4.widget.DrawerLayout>

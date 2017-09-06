@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Gank</string>
+    <string name="navigation_title">听雪楼</string>
+    <string name="daily">每日精彩</string>
+    <string name="welfare">福利</string>
+    <string name="android">Android</string>
+    <string name="ios">iOS</string>
+    <string name="js">前端</string>
+    <string name="video">休息视频</string>
+    <string name="resource">拓展资源</string>
+    <string name="app">App</string>
+    <string name="drawer_open">open the drawer</string>
+    <string name="drawer_close">close the drawer</string>
 </resources>

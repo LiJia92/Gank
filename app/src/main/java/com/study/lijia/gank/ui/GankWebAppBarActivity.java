@@ -8,13 +8,13 @@ import com.study.lijia.gank.R;
 
 import butterknife.BindView;
 
-public class GankWebActivity extends BaseActivity {
+public class GankWebAppBarActivity extends BaseAppBarActivity {
 
     private final static String EXTRA_DESC = "extraDesc";
     private final static String EXTRA_URL = "extraUrl";
 
     public static void navigateTo(Context context, String desc, String url) {
-        Intent intent = new Intent(context, GankWebActivity.class);
+        Intent intent = new Intent(context, GankWebAppBarActivity.class);
         intent.putExtra(EXTRA_DESC, desc);
         intent.putExtra(EXTRA_URL, url);
         context.startActivity(intent);
@@ -39,6 +39,7 @@ public class GankWebActivity extends BaseActivity {
 
     @Override
     protected void initWidgets() {
+        super.initWidgets();
         mWebView.loadUrl(mUrl);
     }
 

@@ -25,3 +25,9 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+ext {
+    var = [
+            supportLibraryVersion: "25.3.1"
+    ]
+}

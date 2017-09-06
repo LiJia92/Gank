@@ -265,3 +265,8 @@ public static final int getColor(Context context, @ColorRes int id) {
 }
 ```
 一目了然了。
+
+## ToolBar
+[Android Toolbar，你想知道的都在这里了](http://yifeng.studio/2016/10/12/android-toolbar/)
+
+[Toolbar的Title与NavigationIcon距离异常](http://www.jianshu.com/p/27563ef79c0e)

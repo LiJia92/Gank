@@ -32,7 +32,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class GankPresenter extends AbsPresenter implements IGankPresenter {
 
-    private final static int PAGE_SIZE = 20;    // 默认一次请求20天的数据
+    private final static int PAGE_SIZE = 20;
 
     private IGankView mView;
 
@@ -54,54 +54,16 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
     public void refreshData(String type) {
         mPage = 1;
         mDataList.clear();
-        if (type.equals(mContext.getResources().getString(R.string.daily))) {
+        loadMore(type);
+    }
+
+    @Override
+    public void loadMore(String type) {
+        if (type.equals(mContext.getString(R.string.daily))) {
             loadMoreDaily();
         } else {
             loadMoreCategory(type);
         }
-    }
-
-    @Override
-    public void loadMoreDaily() {
-        Observable.just(mCurrentDate)
-                .flatMapIterable(new Function<EasyDate, Iterable<EasyDate>>() {
-                    @Override
-                    public Iterable<EasyDate> apply(@NonNull EasyDate easyDate) throws Exception {
-                        return easyDate.getPastTime();
-                    }
-                })
-                .concatMap(new Function<EasyDate, ObservableSource<GankDailyResult>>() {
-                    @Override
-                    public ObservableSource<GankDailyResult> apply(@NonNull EasyDate easyDate) throws Exception {
-                        return GankManager.getInstance().getDaily(easyDate.getYear(), easyDate.getMonth(), easyDate.getDay());
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<GankDailyResult>() {
-                    @Override
-                    public void accept(GankDailyResult gankDailyResult) throws Exception {
-                        if (gankDailyResult.results.androidList != null && gankDailyResult.results.androidList.size() != 0) {
-                            mDataList.add(gankDailyResult);
-                        }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-
-                    }
-                }, new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        mPage++;
-                        if (mView != null) {
-                            List<GankDailyResult> gankDailyResults = new ArrayList<>();
-                            gankDailyResults.addAll(mDataList);
-                            mDataList.clear();
-                            mView.showDaily(gankDailyResults);
-                        }
-                    }
-                });
     }
 
     @Override
@@ -151,8 +113,57 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                 });
     }
 
-    @Override
-    public void loadMoreCategory(String type) {
+    /**
+     * 加载每日精彩
+     */
+    private void loadMoreDaily() {
+        Observable.just(mCurrentDate)
+                .flatMapIterable(new Function<EasyDate, Iterable<EasyDate>>() {
+                    @Override
+                    public Iterable<EasyDate> apply(@NonNull EasyDate easyDate) throws Exception {
+                        return easyDate.getPastTime();
+                    }
+                })
+                .concatMap(new Function<EasyDate, ObservableSource<GankDailyResult>>() {
+                    @Override
+                    public ObservableSource<GankDailyResult> apply(@NonNull EasyDate easyDate) throws Exception {
+                        return GankManager.getInstance().getDaily(easyDate.getYear(), easyDate.getMonth(), easyDate.getDay());
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<GankDailyResult>() {
+                    @Override
+                    public void accept(GankDailyResult gankDailyResult) throws Exception {
+                        if (gankDailyResult.results.androidList != null && gankDailyResult.results.androidList.size() != 0) {
+                            mDataList.add(gankDailyResult);
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        mPage++;
+                        if (mView != null) {
+                            List<GankDailyResult> gankDailyResults = new ArrayList<>();
+                            gankDailyResults.addAll(mDataList);
+                            mDataList.clear();
+                            mView.showList(gankDailyResults);
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 加载分类数据
+     *
+     * @param type 数据类型： 福利 | Android | iOS | 休息视频 | 拓展资源 | 前端 | all
+     */
+    private void loadMoreCategory(String type) {
         GankManager.getInstance().getCategory(type, PAGE_SIZE, mPage)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -161,7 +172,7 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                     public void accept(GankCategoryResult gankCategoryResult) throws Exception {
                         mPage++;
                         if (mView != null) {
-                            mView.showCategoryData(gankCategoryResult.results);
+                            mView.showList(gankCategoryResult.results);
                         }
                     }
                 });

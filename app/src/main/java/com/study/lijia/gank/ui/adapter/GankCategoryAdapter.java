@@ -12,8 +12,10 @@ import java.util.List;
 /**
  * 分类Adapter
  * Created by lijia on 17-9-14.
+ * <p>
+ * 弃用，使用{@link com.study.lijia.gank.ui.adapter.GankMainAdapter}
  */
-
+@Deprecated
 public class GankCategoryAdapter extends BaseQuickAdapter<GankBaseData, BaseViewHolder> {
 
     public GankCategoryAdapter(@Nullable List<GankBaseData> data) {

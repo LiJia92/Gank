@@ -17,15 +17,10 @@ public interface IGankPresenter {
     /**
      * 加载更多
      */
-    void loadMoreDaily();
+    void loadMore(String type);
 
     /**
      * 获取每日详情
      */
     void getDailyDetail(GankDailyResult result);
-
-    /**
-     * 获取分类数据
-     */
-    void loadMoreCategory(String type);
 }

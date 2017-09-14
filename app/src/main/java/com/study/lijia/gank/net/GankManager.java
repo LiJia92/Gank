@@ -79,6 +79,9 @@ public class GankManager {
         return mService.getDailyData(year, month, day);
     }
 
+    /**
+     * 获取分类数据
+     */
     public Observable<GankCategoryResult> getCategory(String type, int count, int page) {
         return mService.getCategoryData(type, count, page);
     }

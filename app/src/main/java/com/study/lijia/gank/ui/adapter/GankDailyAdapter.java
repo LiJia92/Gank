@@ -15,8 +15,10 @@ import java.util.List;
 /**
  * 每日精彩的Adapter
  * Created by lijia on 17-8-15.
+ * <p>
+ * 弃用，使用{@link com.study.lijia.gank.ui.adapter.GankMainAdapter}
  */
-
+@Deprecated
 public class GankDailyAdapter extends BaseQuickAdapter<GankDailyResult, BaseViewHolder> {
 
     public GankDailyAdapter(@Nullable List<GankDailyResult> data) {

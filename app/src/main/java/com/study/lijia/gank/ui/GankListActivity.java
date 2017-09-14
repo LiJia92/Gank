@@ -23,8 +23,7 @@ import com.study.lijia.gank.data.GankBaseData;
 import com.study.lijia.gank.data.GankDailyResult;
 import com.study.lijia.gank.presenter.IGankPresenter;
 import com.study.lijia.gank.presenter.impl.GankPresenter;
-import com.study.lijia.gank.ui.adapter.GankCategoryAdapter;
-import com.study.lijia.gank.ui.adapter.GankDailyAdapter;
+import com.study.lijia.gank.ui.adapter.GankMainAdapter;
 import com.study.lijia.gank.view.IGankView;
 
 import java.util.ArrayList;
@@ -46,8 +45,7 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
     @BindView(R.id.navigation)
     NavigationView mNavigationView;
 
-    private GankDailyAdapter mDailyAdapter;
-    private GankCategoryAdapter mCategoryAdapter;
+    private GankMainAdapter mMainAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private IGankPresenter mGankPresenter;
     private int mOldMenu;
@@ -61,9 +59,9 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
     @Override
     protected void initData() {
         mOldMenu = R.id.navigation_daily;
-        mCurrentType = mContext.getResources().getString(R.string.daily);
+        mCurrentType = mContext.getString(R.string.daily);
         mGankPresenter = new GankPresenter(this);
-        mGankPresenter.loadMoreDaily();
+        mGankPresenter.loadMore(mCurrentType);
     }
 
     @Override
@@ -73,14 +71,10 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
         mRefreshLayout.setRefreshing(true);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mDailyAdapter = new GankDailyAdapter(null);
-        mDailyAdapter.openLoadAnimation(new SlideInRightAnimation());
-        mDailyAdapter.setPreLoadNumber(3);
-        mRecyclerView.setAdapter(mDailyAdapter);
-
-        mCategoryAdapter = new GankCategoryAdapter(null);
-        mCategoryAdapter.openLoadAnimation(new SlideInRightAnimation());
-        mCategoryAdapter.setPreLoadNumber(3);
+        mMainAdapter = new GankMainAdapter(mContext, null);
+        mMainAdapter.openLoadAnimation(new SlideInRightAnimation());
+        mMainAdapter.setPreLoadNumber(3);
+        mRecyclerView.setAdapter(mMainAdapter);
 
         // 抽屉菜单填充内容
         mNavigationView.inflateHeaderView(R.layout.header_navigation);
@@ -99,34 +93,22 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
 
     @Override
     protected void setListener() {
-        mDailyAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
+        mMainAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
-                mGankPresenter.loadMoreDaily();
+                mGankPresenter.loadMore(mCurrentType);
                 mRefreshLayout.setEnabled(false);
             }
         }, mRecyclerView);
 
-        mDailyAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+        mMainAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                mGankPresenter.getDailyDetail((GankDailyResult) adapter.getItem(position));
-            }
-        });
-
-        mCategoryAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
-            @Override
-            public void onLoadMoreRequested() {
-                mGankPresenter.loadMoreCategory(mCurrentType);
-                mRefreshLayout.setEnabled(false);
-            }
-        }, mRecyclerView);
-
-        mCategoryAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                GankBaseData data = (GankBaseData) adapter.getItem(position);
-                if (data != null) {
+                Object object = adapter.getItem(position);
+                if (object instanceof GankDailyResult) {
+                    mGankPresenter.getDailyDetail((GankDailyResult) object);
+                } else if (object instanceof GankBaseData) {
+                    GankBaseData data = (GankBaseData) object;
                     GankWebActivity.navigateTo(mContext, data.desc, data.url);
                 }
             }
@@ -136,9 +118,7 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
             @Override
             public void onRefresh() {
                 mGankPresenter.refreshData(mCurrentType);
-                if (mRecyclerView.getAdapter() instanceof BaseQuickAdapter) {
-                    ((BaseQuickAdapter) mRecyclerView.getAdapter()).setEnableLoadMore(false);
-                }
+                mMainAdapter.setEnableLoadMore(false);
             }
         });
 
@@ -192,39 +172,21 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
     }
 
     @Override
-    public void showDaily(List<GankDailyResult> gankDailyResults) {
+    public void showList(List<?> dataList) {
         if (mRefreshLayout.isRefreshing()) {
             mRefreshLayout.setRefreshing(false);
-            mDailyAdapter.setEnableLoadMore(true);
-            mDailyAdapter.setNewData(gankDailyResults);
+            mMainAdapter.setEnableLoadMore(true);
+            // 下拉刷新先清除数据
+            mMainAdapter.getData().clear();
         } else {
             mRefreshLayout.setEnabled(true);
-            mDailyAdapter.loadMoreComplete();
-            mDailyAdapter.addData(gankDailyResults);
+            mMainAdapter.loadMoreComplete();
         }
-        if (!(mRecyclerView.getAdapter() instanceof GankDailyAdapter)) {
-            mRecyclerView.setAdapter(mDailyAdapter);
-        }
+        mMainAdapter.addData(dataList);
     }
 
     @Override
     public void showDailyData(ArrayList<List<GankBaseData>> dailyData) {
         GankDetailActivity.navigateTo(mContext, dailyData);
-    }
-
-    @Override
-    public void showCategoryData(List<GankBaseData> categoryDataList) {
-        if (mRefreshLayout.isRefreshing()) {
-            mRefreshLayout.setRefreshing(false);
-            mCategoryAdapter.setEnableLoadMore(true);
-            mCategoryAdapter.setNewData(categoryDataList);
-        } else {
-            mRefreshLayout.setEnabled(true);
-            mCategoryAdapter.loadMoreComplete();
-            mCategoryAdapter.addData(categoryDataList);
-        }
-        if (!(mRecyclerView.getAdapter() instanceof GankCategoryAdapter)) {
-            mRecyclerView.setAdapter(mCategoryAdapter);
-        }
     }
 }

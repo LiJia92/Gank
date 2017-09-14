@@ -172,7 +172,7 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
     }
 
     @Override
-    public void showList(List<?> dataList) {
+    public void showList(String type, List<?> dataList) {
         if (mRefreshLayout.isRefreshing()) {
             mRefreshLayout.setRefreshing(false);
             mMainAdapter.setEnableLoadMore(true);
@@ -181,6 +181,11 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
         } else {
             mRefreshLayout.setEnabled(true);
             mMainAdapter.loadMoreComplete();
+        }
+
+        // 返回的数据是之前的接口未执行完返回的，直接丢掉
+        if (!type.equals(mCurrentType)) {
+            return;
         }
         mMainAdapter.addData(dataList);
     }

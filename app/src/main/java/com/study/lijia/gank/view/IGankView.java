@@ -15,7 +15,7 @@ public interface IGankView extends IView {
     /**
      * 展示列表数据
      */
-    void showList(List<?> dataList);
+    void showList(String type, List<?> dataList);
 
     /**
      * 展示一天的详情数据

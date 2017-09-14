@@ -76,9 +76,11 @@ public class GankMainAdapter extends BaseQuickAdapter<Object, BaseViewHolder> {
                     helper.setText(R.id.gank_date_tv, date);
                 }
                 break;
+            case TYPE_WELFARE:
             case TYPE_OTHERS:
                 GankBaseData baseItem = (GankBaseData) object;
                 helper.setText(R.id.category_title_tv, baseItem.desc);
+                break;
         }
     }
 }

@@ -152,7 +152,7 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                             List<GankDailyResult> gankDailyResults = new ArrayList<>();
                             gankDailyResults.addAll(mDataList);
                             mDataList.clear();
-                            mView.showList(gankDailyResults);
+                            mView.showList(mContext.getString(R.string.daily), gankDailyResults);
                         }
                     }
                 });
@@ -163,7 +163,7 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
      *
      * @param type 数据类型： 福利 | Android | iOS | 休息视频 | 拓展资源 | 前端 | all
      */
-    private void loadMoreCategory(String type) {
+    private void loadMoreCategory(final String type) {
         GankManager.getInstance().getCategory(type, PAGE_SIZE, mPage)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -172,7 +172,7 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                     public void accept(GankCategoryResult gankCategoryResult) throws Exception {
                         mPage++;
                         if (mView != null) {
-                            mView.showList(gankCategoryResult.results);
+                            mView.showList(type, gankCategoryResult.results);
                         }
                     }
                 });

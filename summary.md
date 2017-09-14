@@ -270,3 +270,6 @@ public static final int getColor(Context context, @ColorRes int id) {
 [Android Toolbar，你想知道的都在这里了](http://yifeng.studio/2016/10/12/android-toolbar/)
 
 [Toolbar的Title与NavigationIcon距离异常](http://www.jianshu.com/p/27563ef79c0e)
+
+## 注释
+用{@link #函数名/属性名}来链接本类属性/函数，用{@link 包名.类名}来链接其他类 

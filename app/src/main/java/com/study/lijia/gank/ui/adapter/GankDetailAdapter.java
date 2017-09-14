@@ -20,7 +20,7 @@ import com.study.lijia.gank.R;
 import com.study.lijia.gank.Utils.DensityUtils;
 import com.study.lijia.gank.Utils.ImageUtils;
 import com.study.lijia.gank.data.GankBaseData;
-import com.study.lijia.gank.ui.GankWebAppBarActivity;
+import com.study.lijia.gank.ui.GankWebActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,7 +137,7 @@ public class GankDetailAdapter extends BaseQuickAdapter<List<GankBaseData>, Gank
         dataText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GankWebAppBarActivity.navigateTo(mContext, data.desc, data.url);
+                GankWebActivity.navigateTo(mContext, data.desc, data.url);
             }
         });
     }

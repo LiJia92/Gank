@@ -1,10 +1,11 @@
 package com.study.lijia.gank.presenter.impl;
 
-import com.orhanobut.logger.Logger;
+import com.study.lijia.gank.R;
 import com.study.lijia.gank.Utils.DateUtils;
 import com.study.lijia.gank.data.GankBaseData;
 import com.study.lijia.gank.data.GankCategoryData;
-import com.study.lijia.gank.data.GankResult;
+import com.study.lijia.gank.data.GankCategoryResult;
+import com.study.lijia.gank.data.GankDailyResult;
 import com.study.lijia.gank.net.GankManager;
 import com.study.lijia.gank.presenter.AbsPresenter;
 import com.study.lijia.gank.presenter.IGankPresenter;
@@ -35,7 +36,7 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
 
     private IGankView mView;
 
-    private List<GankResult> mDataList = new ArrayList<>();
+    private List<GankDailyResult> mDataList = new ArrayList<>();
     private EasyDate mCurrentDate;
     private int mPage = 1;
 
@@ -50,16 +51,18 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
     }
 
     @Override
-    public void refreshDaily() {
+    public void refreshData(String type) {
         mPage = 1;
         mDataList.clear();
-        loadMoreDaily();
-        Logger.e("refreshDaily");
+        if (type.equals(mContext.getResources().getString(R.string.daily))) {
+            loadMoreDaily();
+        } else {
+            loadMoreCategory(type);
+        }
     }
 
     @Override
     public void loadMoreDaily() {
-        Logger.e("loadMoreDaily");
         Observable.just(mCurrentDate)
                 .flatMapIterable(new Function<EasyDate, Iterable<EasyDate>>() {
                     @Override
@@ -67,19 +70,19 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                         return easyDate.getPastTime();
                     }
                 })
-                .concatMap(new Function<EasyDate, ObservableSource<GankResult>>() {
+                .concatMap(new Function<EasyDate, ObservableSource<GankDailyResult>>() {
                     @Override
-                    public ObservableSource<GankResult> apply(@NonNull EasyDate easyDate) throws Exception {
+                    public ObservableSource<GankDailyResult> apply(@NonNull EasyDate easyDate) throws Exception {
                         return GankManager.getInstance().getDaily(easyDate.getYear(), easyDate.getMonth(), easyDate.getDay());
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<GankResult>() {
+                .subscribe(new Consumer<GankDailyResult>() {
                     @Override
-                    public void accept(GankResult gankResult) throws Exception {
-                        if (gankResult.results.androidList != null && gankResult.results.androidList.size() != 0) {
-                            mDataList.add(gankResult);
+                    public void accept(GankDailyResult gankDailyResult) throws Exception {
+                        if (gankDailyResult.results.androidList != null && gankDailyResult.results.androidList.size() != 0) {
+                            mDataList.add(gankDailyResult);
                         }
                     }
                 }, new Consumer<Throwable>() {
@@ -92,17 +95,17 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                     public void run() throws Exception {
                         mPage++;
                         if (mView != null) {
-                            List<GankResult> gankResults = new ArrayList<>();
-                            gankResults.addAll(mDataList);
+                            List<GankDailyResult> gankDailyResults = new ArrayList<>();
+                            gankDailyResults.addAll(mDataList);
                             mDataList.clear();
-                            mView.showDaily(gankResults);
+                            mView.showDaily(gankDailyResults);
                         }
                     }
                 });
     }
 
     @Override
-    public void getDailyDetail(GankResult result) {
+    public void getDailyDetail(GankDailyResult result) {
         Observable.just(result.results)
                 .map(new Function<GankCategoryData, ArrayList<List<GankBaseData>>>() {
 
@@ -143,6 +146,22 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                     public void accept(ArrayList<List<GankBaseData>> lists) throws Exception {
                         if (mView != null) {
                             mView.showDailyData(lists);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void loadMoreCategory(String type) {
+        GankManager.getInstance().getCategory(type, PAGE_SIZE, mPage)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<GankCategoryResult>() {
+                    @Override
+                    public void accept(GankCategoryResult gankCategoryResult) throws Exception {
+                        mPage++;
+                        if (mView != null) {
+                            mView.showCategoryData(gankCategoryResult.results);
                         }
                     }
                 });

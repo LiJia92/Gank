@@ -8,5 +8,5 @@
     android:background="@color/colorPrimary"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:layout_scrollFlags="scroll|enterAlways"
-    app:title="Gank"
+    app:title="每日精彩"
     app:titleTextColor="@color/white" />

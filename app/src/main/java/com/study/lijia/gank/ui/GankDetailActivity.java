@@ -19,7 +19,7 @@ import butterknife.BindView;
  * Created by lijia on 17-8-16.
  */
 
-public class GankDetailAppBarActivity extends BaseAppBarActivity {
+public class GankDetailActivity extends BaseAppBarActivity {
 
     private static final String EXTRA_DATA = "extraData";
 
@@ -29,7 +29,7 @@ public class GankDetailAppBarActivity extends BaseAppBarActivity {
     private ArrayList<List<GankBaseData>> mData;
 
     public static void navigateTo(Context context, ArrayList<List<GankBaseData>> result) {
-        Intent intent = new Intent(context, GankDetailAppBarActivity.class);
+        Intent intent = new Intent(context, GankDetailActivity.class);
         intent.putExtra(EXTRA_DATA, result);
         context.startActivity(intent);
     }

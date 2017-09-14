@@ -8,23 +8,23 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import com.study.lijia.gank.R;
 import com.study.lijia.gank.Utils.ImageUtils;
 import com.study.lijia.gank.data.GankBaseData;
-import com.study.lijia.gank.data.GankResult;
+import com.study.lijia.gank.data.GankDailyResult;
 
 import java.util.List;
 
 /**
- * 首页列表的Adapter
+ * 每日精彩的Adapter
  * Created by lijia on 17-8-15.
  */
 
-public class GankListAdapter extends BaseQuickAdapter<GankResult, BaseViewHolder> {
+public class GankDailyAdapter extends BaseQuickAdapter<GankDailyResult, BaseViewHolder> {
 
-    public GankListAdapter(@Nullable List<GankResult> data) {
+    public GankDailyAdapter(@Nullable List<GankDailyResult> data) {
         super(R.layout.item_gank, data);
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, GankResult item) {
+    protected void convert(BaseViewHolder helper, GankDailyResult item) {
         String date = "";
         if (item.results.welfareList != null
                 && item.results.welfareList.size() > 0) {

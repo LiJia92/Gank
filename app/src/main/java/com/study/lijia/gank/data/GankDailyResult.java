@@ -8,7 +8,7 @@ import java.util.List;
  * Created by lijia on 17-8-9.
  */
 
-public class GankResult implements Serializable{
+public class GankDailyResult implements Serializable {
 
     public String error;
     public GankCategoryData results;

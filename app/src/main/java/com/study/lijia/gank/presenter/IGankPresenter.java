@@ -1,6 +1,6 @@
 package com.study.lijia.gank.presenter;
 
-import com.study.lijia.gank.data.GankResult;
+import com.study.lijia.gank.data.GankDailyResult;
 
 /**
  * Gank请求接口
@@ -9,9 +9,23 @@ import com.study.lijia.gank.data.GankResult;
 
 public interface IGankPresenter {
 
-    void refreshDaily();
+    /**
+     * 刷新数据
+     */
+    void refreshData(String type);
 
+    /**
+     * 加载更多
+     */
     void loadMoreDaily();
 
-    void getDailyDetail(GankResult result);
+    /**
+     * 获取每日详情
+     */
+    void getDailyDetail(GankDailyResult result);
+
+    /**
+     * 获取分类数据
+     */
+    void loadMoreCategory(String type);
 }

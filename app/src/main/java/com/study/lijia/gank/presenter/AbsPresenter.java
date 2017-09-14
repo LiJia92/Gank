@@ -14,8 +14,8 @@ import com.study.lijia.gank.view.IView;
 
 public abstract class AbsPresenter implements IPresenter {
 
-    private Context mContext;
-    private AppCompatActivity mActivity;
+    protected Context mContext;
+    protected AppCompatActivity mActivity;
 
     public AbsPresenter(IView view) {
         if (view instanceof AppCompatActivity) {

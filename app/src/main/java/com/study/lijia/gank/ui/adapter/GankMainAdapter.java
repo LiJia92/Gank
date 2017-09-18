@@ -46,8 +46,8 @@ public class GankMainAdapter extends BaseQuickAdapter<Object, BaseViewHolder> {
 
         getMultiTypeDelegate()
                 .registerItemType(TYPE_DAILY, R.layout.item_gank)
-                .registerItemType(TYPE_OTHERS, R.layout.item_category)
-                .registerItemType(TYPE_WELFARE, R.layout.item_category);
+                .registerItemType(TYPE_WELFARE, R.layout.item_welfare)
+                .registerItemType(TYPE_OTHERS, R.layout.item_category);
     }
 
     @Override
@@ -71,16 +71,24 @@ public class GankMainAdapter extends BaseQuickAdapter<Object, BaseViewHolder> {
                     helper.setText(R.id.gank_title_tv, title);
                     helper.setText(R.id.gank_date_tv, time);
                 } else {
-                    String title = "今天没有休息视频哟，继续搬砖吧～";
+                    String title = mContext.getString(R.string.empty_desc);
                     helper.setText(R.id.gank_title_tv, title);
                     helper.setText(R.id.gank_date_tv, date);
                 }
                 break;
             case TYPE_WELFARE:
+                GankBaseData welfareItem = (GankBaseData) object;
+                final String url = welfareItem.url;
+                final ImageView imageView = helper.getView(R.id.category_welfare_iv);
+                ImageUtils.loadImage(mContext, url, imageView);
+                break;
             case TYPE_OTHERS:
-                GankBaseData baseItem = (GankBaseData) object;
-                helper.setText(R.id.category_title_tv, baseItem.desc);
+                GankBaseData otherItem = (GankBaseData) object;
+                helper.setText(R.id.category_title_tv, otherItem.desc);
+                helper.setText(R.id.category_writer_tv, "via." + otherItem.who);
+                helper.setText(R.id.category_date_tv, otherItem.publishedAt.substring(0, 10));
                 break;
         }
     }
+
 }

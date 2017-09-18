@@ -11,4 +11,5 @@
     <string name="app">App</string>
     <string name="drawer_open">open the drawer</string>
     <string name="drawer_close">close the drawer</string>
+    <string name="empty_desc">今天没有休息视频哟，继续搬砖吧～</string>
 </resources>

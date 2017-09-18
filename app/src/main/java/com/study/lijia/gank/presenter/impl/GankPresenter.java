@@ -6,7 +6,7 @@ import com.study.lijia.gank.data.GankBaseData;
 import com.study.lijia.gank.data.GankCategoryData;
 import com.study.lijia.gank.data.GankCategoryResult;
 import com.study.lijia.gank.data.GankDailyResult;
-import com.study.lijia.gank.net.GankManager;
+import com.study.lijia.gank.net.GankRequestManager;
 import com.study.lijia.gank.presenter.AbsPresenter;
 import com.study.lijia.gank.presenter.IGankPresenter;
 import com.study.lijia.gank.view.IGankView;
@@ -127,7 +127,7 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
                 .concatMap(new Function<EasyDate, ObservableSource<GankDailyResult>>() {
                     @Override
                     public ObservableSource<GankDailyResult> apply(@NonNull EasyDate easyDate) throws Exception {
-                        return GankManager.getInstance().getDaily(easyDate.getYear(), easyDate.getMonth(), easyDate.getDay());
+                        return GankRequestManager.getInstance().getDaily(easyDate.getYear(), easyDate.getMonth(), easyDate.getDay());
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -164,7 +164,7 @@ public class GankPresenter extends AbsPresenter implements IGankPresenter {
      * @param type 数据类型： 福利 | Android | iOS | 休息视频 | 拓展资源 | 前端 | all
      */
     private void loadMoreCategory(final String type) {
-        GankManager.getInstance().getCategory(type, PAGE_SIZE, mPage)
+        GankRequestManager.getInstance().getCategory(type, PAGE_SIZE, mPage)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<GankCategoryResult>() {

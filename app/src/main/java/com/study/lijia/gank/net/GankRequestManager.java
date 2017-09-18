@@ -23,21 +23,21 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by lijia on 17-8-9.
  */
 
-public class GankManager {
+public class GankRequestManager {
 
     private static final String BASE_GANK_URL = "http://gank.io/api/";
 
-    private static GankManager mInstance;
+    private static GankRequestManager mInstance;
     private GankService mService;
 
-    public static GankManager getInstance() {
+    public static GankRequestManager getInstance() {
         if (mInstance == null) {
-            mInstance = new GankManager();
+            mInstance = new GankRequestManager();
         }
         return mInstance;
     }
 
-    private GankManager() {
+    private GankRequestManager() {
         // HttpClient添加拦截打印url
         OkHttpClient.Builder okHttpClient = new OkHttpClient.Builder();
         okHttpClient.addInterceptor(new Interceptor() {
@@ -48,12 +48,12 @@ public class GankManager {
                 Logger.e("url:" + request.url());
                 //记录请求耗时
                 long startNs = System.nanoTime();
-                okhttp3.Response response;
+                okhttp3.Response response = null;
                 try {
                     //发送请求，获得相应，
                     response = chain.proceed(request);
                 } catch (Exception e) {
-                    throw e;
+                    Logger.e(String.valueOf(e));
                 }
                 long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
                 //打印请求耗时

@@ -12,6 +12,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -48,6 +49,9 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
     private GankMainAdapter mMainAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private IGankPresenter mGankPresenter;
+    private LinearLayoutManager mLinearLayoutManager;
+    private StaggeredGridLayoutManager mStaggeredGridLayoutManager;
+
     private int mOldMenu;
     private String mCurrentType;
 
@@ -70,11 +74,13 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
         mRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorAccent));
         mRefreshLayout.setRefreshing(true);
 
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mMainAdapter = new GankMainAdapter(mContext, null);
         mMainAdapter.openLoadAnimation(new SlideInRightAnimation());
         mMainAdapter.setPreLoadNumber(3);
         mRecyclerView.setAdapter(mMainAdapter);
+        mRecyclerView.setItemAnimator(null);
 
         // 抽屉菜单填充内容
         mNavigationView.inflateHeaderView(R.layout.header_navigation);
@@ -187,6 +193,21 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
         if (!type.equals(mCurrentType)) {
             return;
         }
+
+        if (type.equals("福利")) {
+            if (mStaggeredGridLayoutManager == null) {
+                mStaggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                mStaggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+            }
+            if (!(mRecyclerView.getLayoutManager() instanceof StaggeredGridLayoutManager)) {
+                mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
+            }
+        } else {
+            if (!(mRecyclerView.getLayoutManager() instanceof LinearLayoutManager)) {
+                mRecyclerView.setLayoutManager(mLinearLayoutManager);
+            }
+        }
+
         mMainAdapter.addData(dataList);
     }
 

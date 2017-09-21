@@ -144,6 +144,7 @@ public class GankListActivity extends BaseAppBarActivity implements IGankView {
                     mDrawerLayout.closeDrawer(GravityCompat.START);
                     mRefreshLayout.setRefreshing(true);
                     mGankPresenter.refreshData(mCurrentType);
+                    mMainAdapter.loadMoreComplete();
                 }
                 return true;
             }

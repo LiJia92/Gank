@@ -2,12 +2,16 @@ package com.study.lijia.gank.ui.adapter;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.util.MultiTypeDelegate;
+import com.study.lijia.gank.GlideApp;
 import com.study.lijia.gank.R;
+import com.study.lijia.gank.Utils.DensityUtils;
 import com.study.lijia.gank.Utils.ImageUtils;
 import com.study.lijia.gank.data.GankBaseData;
 import com.study.lijia.gank.data.GankDailyResult;
@@ -80,7 +84,16 @@ public class GankMainAdapter extends BaseQuickAdapter<Object, BaseViewHolder> {
                 GankBaseData welfareItem = (GankBaseData) object;
                 final String url = welfareItem.url;
                 final ImageView imageView = helper.getView(R.id.category_welfare_iv);
-                ImageUtils.loadImage(mContext, url, imageView);
+
+                ViewGroup.LayoutParams layoutParams = imageView.getLayoutParams();
+                layoutParams.height = (int) ((Math.random() + 1) * DensityUtils.dip2px(mContext, 200));
+
+                GlideApp.with(mContext)
+                        .load(url)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .centerCrop()
+                        .placeholder(R.drawable.img_default_gray)
+                        .into(imageView);
                 break;
             case TYPE_OTHERS:
                 GankBaseData otherItem = (GankBaseData) object;

@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.TextAppearanceSpan;
@@ -50,6 +51,11 @@ public class GankDetailAdapter extends BaseQuickAdapter<List<GankBaseData>, Gank
     @Override
     protected void convert(GankViewHolder helper, List<GankBaseData> item) {
         helper.rootLayout.removeAllViews();
+        if (helper.getAdapterPosition() == 0) {
+            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) helper.itemView.getLayoutParams();
+            params.topMargin = DensityUtils.dip2px(mContext, 8);
+        }
+
         for (int i = 0; i < item.size(); i++) {
             GankBaseData data = item.get(i);
             if (i == 0) {
@@ -105,7 +111,6 @@ public class GankDetailAdapter extends BaseQuickAdapter<List<GankBaseData>, Gank
         header.setTextSize(20);
         header.getPaint().setFakeBoldText(true);
         header.setPadding(mPadding, mPadding, mPadding, mPadding);
-
         rootLayout.addView(header);
     }
 

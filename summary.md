@@ -277,5 +277,5 @@ public static final int getColor(Context context, @ColorRes int id) {
 ## 瀑布流
 1. 网络接口服务器直接返回图片尺寸；
 2. 自己预先缓存图片，然后从缓存获取bitmap的尺寸，使用``options.inJustDecodeBounds``占用内存会比较少，然后设置给view
->
-[BiliBili客户端中瀑布流的图片是怎么做到宽度固定，根据图片比例来设置长度呢？](https://www.zhihu.com/question/39360466)
+
+> [BiliBili客户端中瀑布流的图片是怎么做到宽度固定，根据图片比例来设置长度呢？](https://www.zhihu.com/question/39360466)

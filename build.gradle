@@ -32,4 +32,5 @@ ext {
     var = [
             supportLibraryVersion: "25.3.1"
     ]
+    anko_version = "0.10.2"
 }

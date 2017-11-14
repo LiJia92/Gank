@@ -149,6 +149,303 @@ static class Android extends Platform {
 }
 ```
 
+3. 根据设置的CallAdapterFactory进行转换callAdapter，在安卓端，不设置则使用ExecutorCallAdapterFactory。
+```
+final class ExecutorCallAdapterFactory extends CallAdapter.Factory {
+    final Executor callbackExecutor;
+
+    ExecutorCallAdapterFactory(Executor callbackExecutor) {
+        this.callbackExecutor = callbackExecutor;
+    }
+
+    @Override
+    public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
+        if (getRawType(returnType) != Call.class) {
+            return null;
+        }
+        final Type responseType = Utils.getCallResponseType(returnType);
+        return new CallAdapter<Object, Call<?>>() {
+            @Override
+            public Type responseType() {
+                return responseType;
+            }
+
+            @Override
+            public Call<Object> adapt(Call<Object> call) {
+                return new ExecutorCallbackCall<>(callbackExecutor, call);
+            }
+        };
+    }
+    
+    static final class ExecutorCallbackCall<T> implements Call<T> {
+    final Executor callbackExecutor;
+    final Call<T> delegate;
+
+    ExecutorCallbackCall(Executor callbackExecutor, Call<T> delegate) {
+        this.callbackExecutor = callbackExecutor;
+        this.delegate = delegate;
+    }
+
+    @Override
+    public void enqueue(final Callback<T> callback) {
+        checkNotNull(callback, "callback == null");
+
+        delegate.enqueue(new Callback<T>() {
+            @Override
+            public void onResponse(Call<T> call, final Response<T> response) {
+                callbackExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (delegate.isCanceled()) {
+                            // Emulate OkHttp's behavior of throwing/delivering an IOException on cancellation.
+                            callback.onFailure(ExecutorCallbackCall.this, new IOException("Canceled"));
+                        } else {
+                            callback.onResponse(ExecutorCallbackCall.this, response);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call<T> call, final Throwable t) {
+                callbackExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onFailure(ExecutorCallbackCall.this, t);
+                    }
+                });
+            }
+        });
+    }
+}
+```
+若设置 RxJava，则使用 RxJava2CallAdapter：
+```
+final class RxJava2CallAdapter<R> implements CallAdapter<R, Object> {
+    private final Type responseType;
+    private final @Nullable
+    Scheduler scheduler;
+    private final boolean isAsync;
+    private final boolean isResult;
+    private final boolean isBody;
+    private final boolean isFlowable;
+    private final boolean isSingle;
+    private final boolean isMaybe;
+    private final boolean isCompletable;
+
+    RxJava2CallAdapter(Type responseType, @Nullable Scheduler scheduler, boolean isAsync,
+                       boolean isResult, boolean isBody, boolean isFlowable, boolean isSingle, boolean isMaybe,
+                       boolean isCompletable) {
+        this.responseType = responseType;
+        this.scheduler = scheduler;
+        this.isAsync = isAsync;
+        this.isResult = isResult;
+        this.isBody = isBody;
+        this.isFlowable = isFlowable;
+        this.isSingle = isSingle;
+        this.isMaybe = isMaybe;
+        this.isCompletable = isCompletable;
+    }
+
+    @Override
+    public Type responseType() {
+        return responseType;
+    }
+
+    @Override
+    public Object adapt(Call<R> call) {
+        Observable<Response<R>> responseObservable = isAsync
+                ? new CallEnqueueObservable<>(call)
+                : new CallExecuteObservable<>(call);
+
+        Observable<?> observable;
+        if (isResult) {
+            observable = new ResultObservable<>(responseObservable);
+        } else if (isBody) {
+            observable = new BodyObservable<>(responseObservable);
+        } else {
+            observable = responseObservable;
+        }
+
+        if (scheduler != null) {
+            observable = observable.subscribeOn(scheduler);
+        }
+
+        if (isFlowable) {
+            return observable.toFlowable(BackpressureStrategy.LATEST);
+        }
+        if (isSingle) {
+            return observable.singleOrError();
+        }
+        if (isMaybe) {
+            return observable.singleElement();
+        }
+        if (isCompletable) {
+            return observable.ignoreElements();
+        }
+        return observable;
+    }
+}
+```
+返回的 observable 只有在发生订阅关系时才会调用请求。
+```
+@SchedulerSupport(SchedulerSupport.NONE)
+@Override
+public final void subscribe(Observer<? super T> observer) {
+    ObjectHelper.requireNonNull(observer, "observer is null");
+    try {
+        observer = RxJavaPlugins.onSubscribe(this, observer);
+
+        ObjectHelper.requireNonNull(observer, "Plugin returned null Observer");
+
+        subscribeActual(observer);
+    } catch (NullPointerException e) { // NOPMD
+        throw e;
+    } catch (Throwable e) {
+        Exceptions.throwIfFatal(e);
+        // can't call onError because no way to know if a Disposable has been set or not
+        // can't call onSubscribe because the call might have set a Subscription already
+        RxJavaPlugins.onError(e);
+
+        NullPointerException npe = new NullPointerException("Actually not, but can't throw other exceptions due to RS");
+        npe.initCause(e);
+        throw npe;
+    }
+}
+```
+subscribeActual 则是请求真正发生的地方：
+```
+protected abstract void subscribeActual(Observer<? super T> observer);
+```
+通过 RxJava2CallAdapter 返回的 observable 是 CallEnqueueObservable 或 CallExecuteObservable：
+```
+final class CallEnqueueObservable<T> extends Observable<Response<T>> {
+    private final Call<T> originalCall;
+
+    CallEnqueueObservable(Call<T> originalCall) {
+        this.originalCall = originalCall;
+    }
+
+    @Override protected void subscribeActual(Observer<? super Response<T>> observer) {
+        // Since Call is a one-shot type, clone it for each new observer.
+        Call<T> call = originalCall.clone();
+        retrofit2.adapter.rxjava2.CallEnqueueObservable.CallCallback<T> callback = new retrofit2.adapter.rxjava2.CallEnqueueObservable.CallCallback<>(call, observer);
+        observer.onSubscribe(callback);
+        call.enqueue(callback);
+    }
+
+    private static final class CallCallback<T> implements Disposable, Callback<T> {
+        private final Call<?> call;
+        private final Observer<? super Response<T>> observer;
+        boolean terminated = false;
+
+        CallCallback(Call<?> call, Observer<? super Response<T>> observer) {
+            this.call = call;
+            this.observer = observer;
+        }
+
+        @Override public void onResponse(Call<T> call, Response<T> response) {
+            if (call.isCanceled()) return;
+
+            try {
+                observer.onNext(response);
+
+                if (!call.isCanceled()) {
+                    terminated = true;
+                    observer.onComplete();
+                }
+            } catch (Throwable t) {
+                if (terminated) {
+                    RxJavaPlugins.onError(t);
+                } else if (!call.isCanceled()) {
+                    try {
+                        observer.onError(t);
+                    } catch (Throwable inner) {
+                        Exceptions.throwIfFatal(inner);
+                        RxJavaPlugins.onError(new CompositeException(t, inner));
+                    }
+                }
+            }
+        }
+
+        @Override public void onFailure(Call<T> call, Throwable t) {
+            if (call.isCanceled()) return;
+
+            try {
+                observer.onError(t);
+            } catch (Throwable inner) {
+                Exceptions.throwIfFatal(inner);
+                RxJavaPlugins.onError(new CompositeException(t, inner));
+            }
+        }
+
+        @Override public void dispose() {
+            call.cancel();
+        }
+
+        @Override public boolean isDisposed() {
+            return call.isCanceled();
+        }
+    }
+}
+
+
+final class CallExecuteObservable<T> extends Observable<Response<T>> {
+    private final Call<T> originalCall;
+
+    CallExecuteObservable(Call<T> originalCall) {
+        this.originalCall = originalCall;
+    }
+
+    @Override protected void subscribeActual(Observer<? super Response<T>> observer) {
+        // Since Call is a one-shot type, clone it for each new observer.
+        Call<T> call = originalCall.clone();
+        observer.onSubscribe(new retrofit2.adapter.rxjava2.CallExecuteObservable.CallDisposable(call));
+
+        boolean terminated = false;
+        try {
+            Response<T> response = call.execute();
+            if (!call.isCanceled()) {
+                observer.onNext(response);
+            }
+            if (!call.isCanceled()) {
+                terminated = true;
+                observer.onComplete();
+            }
+        } catch (Throwable t) {
+            Exceptions.throwIfFatal(t);
+            if (terminated) {
+                RxJavaPlugins.onError(t);
+            } else if (!call.isCanceled()) {
+                try {
+                    observer.onError(t);
+                } catch (Throwable inner) {
+                    Exceptions.throwIfFatal(inner);
+                    RxJavaPlugins.onError(new CompositeException(t, inner));
+                }
+            }
+        }
+    }
+
+    private static final class CallDisposable implements Disposable {
+        private final Call<?> call;
+
+        CallDisposable(Call<?> call) {
+            this.call = call;
+        }
+
+        @Override public void dispose() {
+            call.cancel();
+        }
+
+        @Override public boolean isDisposed() {
+            return call.isCanceled();
+        }
+    }
+}
+```
+如此，Retrofit 从生成代理对象，到调用接口，都清晰了然了。
+
 ## RxJava
 
 > a library for composing asynchronous and event-based programs using observable sequences for the Java VM

@@ -1,1 +1,1 @@
-include ':app', ':newgank'
+include ':app', ':newgank', ':mylibrary', ':internallibrary'

@@ -3,6 +3,8 @@ package com.study.lijia.newgank
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import com.study.lijia.internallibrary.InternalClass
+import com.study.lijia.mylibrary.MyClass
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.longToast
@@ -16,9 +18,11 @@ class MainActivity : AppCompatActivity() {
 
         message.text = "哈哈哈"
         message.setOnClickListener {
-            toast("Hello From Kotlin")
-            val person = Person("李佳", 25)
-            toast(person.toString())
+//            val person = Person("李佳", 25)
+//            toast(person.toString())
+            toast(MyClass().myClass)
+            toast(MyClass().contentFromInternal)
+            toast(InternalClass().internalClass)
         }
 
         doAsync {

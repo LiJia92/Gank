@@ -446,6 +446,8 @@ final class CallExecuteObservable<T> extends Observable<Response<T>> {
 ```
 如此，Retrofit 从生成代理对象，到调用接口，都清晰了然了。
 
+Retrofit 中用到了大量的设计模式。参考：[Retrofit2源码设计模式分析](http://jayfeng.com/2016/12/10/Retrofit%E6%BA%90%E7%A0%81%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%88%86%E6%9E%90/)。
+
 ## RxJava
 
 > a library for composing asynchronous and event-based programs using observable sequences for the Java VM
